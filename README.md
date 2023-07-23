@@ -31,13 +31,18 @@ RDP_SCALE=100
 
 
 
-if [ -z "$(which xfreerdp)" ]; then
-        echo "You need xfreerdp!"
-        echo "  sudo apt-get install -y freerdp2-x11"
-        exit
+nc -w 2 -z -v ${RDP_IP} ${RDP_PORT} 2>/dev/null
+if [ $? -eq 1 ];then
+        echo "连接故障"
+		notify-send "连接故障"
+		exit 
+    elif [ -z "$(which xfreerdp)" ]; then
+		echo "You need install xfreerdp!"
+		notify-send "You need install xfreerdp!"
+		exit
+	else
+		xfreerdp ${RDP_FLAGS} /d:"${RDP_DOMAIN}" /u:"${RDP_USER}" /p:"${RDP_PASS}" /v:${RDP_IP}:${RDP_PORT} /scale:${RDP_SCALE} /size:70%h60%w /drive:media,/media/${CLIENT_USER} /dynamic-resolution +clipboard +auto-reconnect +home-drive +aero /printer /sound /microphone /cert-ignore /wm-class:"Microsoft Windows" 1> /dev/null 2>&1 &
 fi
-
-xfreerdp ${RDP_FLAGS} /d:"${RDP_DOMAIN}" /u:"${RDP_USER}" /p:"${RDP_PASS}" /v:${RDP_IP}:${RDP_PORT} /scale:${RDP_SCALE} /size:70%h60%w /drive:media,/media/${CLIENT_USER} /dynamic-resolution +clipboard +auto-reconnect +home-drive +aero /printer /sound /microphone /wm-class:"Microsoft Windows" 1> /dev/null 2>&1 &
 ```
 ### 一个桌面图标文件
 把 $USER 改为你自己的用户名
